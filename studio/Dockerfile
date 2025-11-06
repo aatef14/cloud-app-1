@@ -1,45 +1,49 @@
-# Stage 1: Base image with dependencies
-# Use a specific Node.js version for consistency
-FROM node:20.11.1-alpine AS base
+# Stage 1: Dependency installation
+# This stage installs all dependencies, including devDependencies,
+# which are needed for the build process.
+FROM node:20-slim AS deps
 WORKDIR /app
 
-# Install necessary packages for building native modules
-RUN apk add --no-cache libc6-compat python3 make g++
+# Copy package.json and package-lock.json to leverage Docker cache
+COPY package.json package-lock.json ./
+RUN npm install --legacy-peer-deps
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
-
-# Stage 2: Build the application
-FROM base AS builder
+# Stage 2: Code builder
+# This stage builds the Next.js application.
+FROM node:20-slim AS builder
 WORKDIR /app
 
-# Install all dependencies (including devDependencies)
-RUN npm install
-
-# Copy the rest of your app's source code
+# Copy installed dependencies from the 'deps' stage
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Add build arguments for environment variables needed at build time
+# Arguments to pass environment variables needed at build time
 ARG AWS_REGION
 ARG S3_BUCKET_NAME
 
-# Set the environment variables for the build process
+# Set the environment variables for the build command
 ENV AWS_REGION=${AWS_REGION}
 ENV S3_BUCKET_NAME=${S3_BUCKET_NAME}
 
-# Build the Next.js application
+# Since you are using an IAM role on EC2, you don't need to pass build-time AWS secrets.
+# We will rely on runtime environment variables.
 RUN npm run build
 
 # Stage 3: Production image
-# Use a slim, secure base image
-FROM node:20.11.1-alpine AS runner
+# This stage creates the final, small, and optimized image for production.
+FROM node:20-slim AS runner
 WORKDIR /app
 
-# You don't need the full node_modules in production, only what's necessary
-# The standalone output mode handles this for us.
+# Set the environment to production
+ENV NODE_ENV=production
+# The --omit=dev flag ensures devDependencies are not installed
+RUN npm install --omit=dev --legacy-peer-deps
+
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
 
 # The server will run on port 3000 inside the container
 EXPOSE 3000
