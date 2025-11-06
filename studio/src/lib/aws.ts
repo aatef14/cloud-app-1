@@ -18,7 +18,6 @@ const bucketName = process.env.S3_BUCKET_NAME;
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
 
-
 if (!region || !bucketName) {
   throw new Error('AWS region or S3 bucket name is missing from environment variables.');
 }
@@ -32,12 +31,9 @@ const USERS_TABLE = 'FileZenCloudUsers';
 const FILES_TABLE = 'FileZenCloudFiles';
 
 // Clients
-// If access keys are provided in the environment, they will be used.
-// Otherwise, the SDK will fall back to using an IAM role (if running on EC2).
 const ddbClient = new DynamoDBClient({ region, credentials: awsCredentials });
 const docClient = DynamoDBDocumentClient.from(ddbClient);
 const s3Client = new S3Client({ region, credentials: awsCredentials });
-
 
 // User Functions
 export async function createUser(user: User): Promise<void> {
@@ -109,12 +105,18 @@ export async function deleteFileMetadata(username: string, fileName: string): Pr
     await docClient.send(command);
 }
 
-export async function generatePresignedUrl(username: string, fileName: string): Promise<string> {
+export async function generatePresignedUrl(username: string, fileName: string, operation: 'getObject' | 'putObject'): Promise<string> {
     const key = `${username}/${fileName}`;
-    const command = new GetObjectCommand({
-        Bucket: bucketName,
-        Key: key,
-    });
+    let command;
+    if (operation === 'getObject') {
+      command = new GetObjectCommand({
+          Bucket: bucketName,
+          Key: key,
+      });
+    } else {
+        throw new Error('Unsupported operation for presigned URL');
+    }
+
     // The URL will be valid for 1 hour
     return getSignedUrl(s3Client, command, { expiresIn: 3600 });
 }

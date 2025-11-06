@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MoreHorizontal, File, Share2, Trash2, Copy, AlertCircle, Loader2 } from 'lucide-react';
+import { MoreHorizontal, File, Share2, Trash2, Download, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import {
   Table,
@@ -20,7 +20,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { FileMetadata } from '@/lib/definitions';
-import { deleteFile, shareFile } from '@/lib/actions';
+import { deleteFile, shareFile, downloadFile } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -31,7 +31,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
 function formatBytes(bytes: number, decimals = 2) {
@@ -43,15 +42,12 @@ function formatBytes(bytes: number, decimals = 2) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
-
 export function FilesTable({ files, username }: { files: FileMetadata[], username: string }) {
   const { toast } = useToast();
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [sharingId, setSharingId] = useState<string | null>(null);
-
+  const [actionState, setActionState] = useState<{ type: 'deleting' | 'sharing' | 'downloading'; id: string | null }>({ type: null, id: null });
 
   const handleShare = async (fileName: string) => {
-    setSharingId(fileName);
+    setActionState({ type: 'sharing', id: fileName });
     const result = await shareFile(username, fileName);
     if (result.url) {
       await navigator.clipboard.writeText(result.url);
@@ -59,18 +55,35 @@ export function FilesTable({ files, username }: { files: FileMetadata[], usernam
     } else {
       toast({ variant: 'destructive', title: 'Error', description: result.error });
     }
-    setSharingId(null);
+    setActionState({ type: null, id: null });
+  };
+
+  const handleDownload = async (fileName: string) => {
+    setActionState({ type: 'downloading', id: fileName });
+    const result = await downloadFile(username, fileName);
+    if (result.url) {
+      // Create a temporary link to trigger the download
+      const link = document.createElement('a');
+      link.href = result.url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      toast({ variant: 'destructive', title: 'Error', description: result.error });
+    }
+    setActionState({ type: null, id: null });
   };
 
   const handleDelete = async (fileName: string) => {
-    setDeletingId(fileName);
+    setActionState({ type: 'deleting', id: fileName });
     const result = await deleteFile(username, fileName);
     if (result.success) {
       toast({ title: 'File Deleted', description: `"${fileName}" has been permanently deleted.` });
     } else {
       toast({ variant: 'destructive', title: 'Error', description: result.error });
     }
-    setDeletingId(null);
+    setActionState({ type: null, id: null });
   };
 
   if (files.length === 0) {
@@ -81,6 +94,10 @@ export function FilesTable({ files, username }: { files: FileMetadata[], usernam
             <p className="mt-2 text-sm text-muted-foreground">Upload your first file to get started.</p>
         </div>
     );
+  }
+
+  const isLoading = (type: 'deleting' | 'sharing' | 'downloading', id: string) => {
+    return actionState.type === type && actionState.id === id;
   }
 
   return (
@@ -116,19 +133,26 @@ export function FilesTable({ files, username }: { files: FileMetadata[], usernam
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                        <DropdownMenuItem onSelect={() => handleDownload(file.fileName)}>
+                            {isLoading('downloading', file.fileName) ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <Download className="mr-2 h-4 w-4" />
+                            )}
+                           <span>Download</span>
+                        </DropdownMenuItem>
                         <DropdownMenuItem onSelect={() => handleShare(file.fileName)}>
-                            {sharingId === file.fileName ? (
+                            {isLoading('sharing', file.fileName) ? (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : (
                                 <Share2 className="mr-2 h-4 w-4" />
                             )}
                            <span>Share</span>
                         </DropdownMenuItem>
-
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
-                                    {deletingId === file.fileName ? (
+                                    {isLoading('deleting', file.fileName) ? (
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     ) : (
                                         <Trash2 className="mr-2 h-4 w-4" />
@@ -151,7 +175,6 @@ export function FilesTable({ files, username }: { files: FileMetadata[], usernam
                                 </AlertDialogFooter>
                             </AlertDialogContent>
                         </AlertDialog>
-
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>

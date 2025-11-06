@@ -158,10 +158,22 @@ export async function deleteFile(username: string, fileName: string) {
 
 export async function shareFile(username: string, fileName: string) {
     try {
-        const url = await generatePresignedUrl(username, fileName);
+        const url = await generatePresignedUrl(username, fileName, 'getObject');
+        revalidatePath('/dashboard');
         return { url };
     } catch (error) {
         console.error('Share failed:', error);
         return { error: 'Could not generate share link.' };
     }
+}
+
+export async function downloadFile(username: string, fileName: string) {
+  try {
+    const url = await generatePresignedUrl(username, fileName, 'getObject');
+    revalidatePath('/dashboard');
+    return { url };
+  } catch (error) {
+    console.error('Download failed:', error);
+    return { error: 'Could not generate download link.' };
+  }
 }
