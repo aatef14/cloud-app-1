@@ -1,35 +1,45 @@
-
-# Use the official Node.js 20 image.
-FROM node:20-alpine
-
-# Set the working directory in the container.
+# 1. Install dependencies
+FROM node:20-alpine AS deps
 WORKDIR /app
-
-# Copy package.json and package-lock.json.
 COPY package.json package-lock.json* ./
-
-# Install dependencies.
 RUN npm install --legacy-peer-deps
 
-# Copy the rest of the application's source code.
+# 2. Build the application
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Set build-time arguments as environment variables
-ARG AWS_REGION
-ARG S3_BUCKET_NAME
-ENV AWS_REGION=${AWS_REGION}
-ENV S3_BUCKET_NAME=${S3_BUCKET_NAME}
-ENV JWT_SECRET_KEY=${JWT_SECRET_KEY}
-ENV GOOGLE_API_KEY=${GOOGLE_API_KEY}
+# Set dummy env vars for build time to prevent errors
+ENV AWS_REGION=dummy-region
+ENV S3_BUCKET_NAME=dummy-bucket
+ENV JWT_SECRET_KEY=dummy-secret
+ENV GOOGLE_API_KEY=dummy-key
 
-# Build the Next.js application.
 RUN npm run build
 
-# Set the port the container will listen on.
+# 3. Production image
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+# Create a non-root user for security
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy the standalone Next.js server output
+COPY --from=builder /app/.next/standalone ./
+# Copy the public and static folders
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/static ./.next/static
+
+USER nextjs
+
 EXPOSE 9002
 
-# Set the user to run the app.
-USER node
+ENV PORT 9002
+# All ENV vars like AWS_REGION, S3_BUCKET_NAME, etc., must be passed at runtime
+# For example: docker run -p 9002:9002 -e AWS_REGION=... -e S3_BUCKET_NAME=... <image_name>
 
-# The command to run the application.
 CMD ["node", "server.js"]
