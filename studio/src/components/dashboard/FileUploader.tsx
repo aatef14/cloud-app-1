@@ -63,15 +63,16 @@ export function FileUploader({ username }: { username: string }) {
   };
 
   useEffect(() => {
-    if (state?.success) {
+    if (!state) return;
+    if (state.success) {
       toast({ title: 'Success', description: state.success });
+      router.refresh();
       setOpen(false);
       setFile(null);
       formRef.current?.reset();
       setProgress(0);
-      router.refresh();
     }
-    if (state?.error) {
+    if (state.error) {
       toast({ variant: 'destructive', title: 'Error', description: state.error });
       setProgress(0);
     }

@@ -139,7 +139,6 @@ export async function uploadFile(prevState: any, formData: FormData) {
     return { error: 'File upload failed. Please try again.' };
   }
   
-  // revalidatePath('/dashboard'); // This was causing the issue, removing it.
   return { success: 'File uploaded successfully.' };
 }
 
