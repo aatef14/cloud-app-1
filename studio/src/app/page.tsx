@@ -40,7 +40,7 @@ export default function Home() {
       </main>
       <footer className="bg-muted">
         <div className="container mx-auto px-4 py-6 text-center text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Atifs Binary container Cloud. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Atif's Storage. All rights reserved.</p>
         </div>
       </footer>
     </div>

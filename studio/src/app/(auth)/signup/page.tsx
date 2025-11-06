@@ -10,7 +10,7 @@ export default function SignupPage() {
         <CardHeader className="text-center">
           <AtifsBinaryContainerLogo className="mx-auto h-10 w-10 text-primary" />
           <CardTitle className="mt-4 text-2xl font-bold">Create an Account</CardTitle>
-          <CardDescription>Start managing your files with Atifs Binary container Cloud</CardDescription>
+          <CardDescription>Start managing your files with Atif's Storage</CardDescription>
         </CardHeader>
         <CardContent>
           <SignupForm />

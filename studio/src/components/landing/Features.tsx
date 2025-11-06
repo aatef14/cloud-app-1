@@ -33,7 +33,7 @@ export function Features() {
                 Everything You Need, Nothing You Don't
             </h2>
             <p className="mt-4 text-lg leading-8 text-muted-foreground">
-                Atifs Binary container Cloud is packed with features to streamline your file management.
+                Atif's Storage is packed with features to streamline your file management.
             </p>
         </div>
         <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">

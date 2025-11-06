@@ -8,7 +8,7 @@ export function Header() {
       <div className="container mx-auto px-4 flex h-16 items-center">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg">
           <AtifsBinaryContainerLogo className="h-6 w-6 text-primary" />
-          <span className="font-headline">Atifs Binary container Cloud</span>
+          <span className="font-headline">Atif's Storage</span>
         </Link>
         <div className="ml-auto flex items-center gap-2">
           <Button variant="ghost" asChild>

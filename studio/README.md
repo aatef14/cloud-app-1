@@ -1,6 +1,6 @@
-# Atifs Binary container Cloud
+# Atif's Storage
 
-Welcome to Atifs Binary container Cloud, a smart file storage and sharing system built with Next.js, AWS S3, and DynamoDB. This application provides a secure and scalable platform for users to manage their files in the cloud.
+Welcome to Atif's Storage, a smart file storage and sharing system built with Next.js, AWS S3, and DynamoDB. This application provides a secure and scalable platform for users to manage their files in the cloud.
 
 ## ✨ Features
 

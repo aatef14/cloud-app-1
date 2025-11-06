@@ -13,7 +13,7 @@ export function Hero() {
                 Securely Store & Share Your Files
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
-                Atifs Binary container Cloud offers a simple, secure, and intelligent platform to manage your digital life. Upload, organize, and share with confidence.
+                Atif's Storage offers a simple, secure, and intelligent platform to manage your digital life. Upload, organize, and share with confidence.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
                 <Button size="lg" asChild>

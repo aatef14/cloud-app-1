@@ -10,7 +10,7 @@ export default function LoginPage() {
         <CardHeader className="text-center">
           <AtifsBinaryContainerLogo className="mx-auto h-10 w-10 text-primary" />
           <CardTitle className="mt-4 text-2xl font-bold">Welcome Back</CardTitle>
-          <CardDescription>Sign in to access your Atifs Binary container Cloud</CardDescription>
+          <CardDescription>Sign in to access your Atif's Storage</CardDescription>
         </CardHeader>
         <CardContent>
           <LoginForm />
