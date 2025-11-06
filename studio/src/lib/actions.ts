@@ -139,7 +139,7 @@ export async function uploadFile(prevState: any, formData: FormData) {
     return { error: 'File upload failed. Please try again.' };
   }
   
-  revalidatePath('/dashboard');
+  // revalidatePath('/dashboard'); // This was causing the issue, removing it.
   return { success: 'File uploaded successfully.' };
 }
 
@@ -159,7 +159,6 @@ export async function deleteFile(username: string, fileName: string) {
 export async function shareFile(username: string, fileName: string) {
     try {
         const url = await generatePresignedUrl(username, fileName, 'getObject');
-        revalidatePath('/dashboard');
         return { url };
     } catch (error) {
         console.error('Share failed:', error);
@@ -170,7 +169,6 @@ export async function shareFile(username: string, fileName: string) {
 export async function downloadFile(username: string, fileName: string) {
   try {
     const url = await generatePresignedUrl(username, fileName, 'getObject');
-    revalidatePath('/dashboard');
     return { url };
   } catch (error) {
     console.error('Download failed:', error);

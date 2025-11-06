@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useFormState } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { UploadCloud } from 'lucide-react';
 
@@ -22,11 +22,10 @@ import { uploadFile } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isFileSelected }: { isFileSelected: boolean }) {
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? 'Uploading...' : 'Upload File'}
+    <Button type="submit" disabled={!isFileSelected}>
+      Upload File
     </Button>
   );
 }
@@ -34,34 +33,34 @@ function SubmitButton() {
 export function FileUploader({ username }: { username: string }) {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
   const [state, formAction] = useFormState(uploadFile, null);
   const { toast } = useToast();
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
-  
-  // This is a mock progress, in a real app you'd use a library that supports progress tracking.
-  const [progress, setProgress] = useState(0);
-  const { pending } = useFormStatus();
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (pending) {
-      setProgress(0);
-      let progressValue = 0;
-      timer = setInterval(() => {
-        progressValue += Math.random() * 10;
-        if (progressValue > 95) {
-             // Don't complete to 100 until action is done
-        } else {
-             setProgress(progressValue);
+  const handleFormAction = async (formData: FormData) => {
+    setIsUploading(true);
+    setProgress(0);
+    
+    // Simulate upload progress
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 95) {
+          clearInterval(progressInterval);
+          return prev;
         }
-      }, 200);
-    }
-    return () => {
-      if(timer) clearInterval(timer);
-    };
-  }, [pending]);
+        return prev + 5;
+      });
+    }, 200);
 
+    await formAction(formData);
+
+    clearInterval(progressInterval);
+    setProgress(100);
+    setIsUploading(false);
+  };
 
   useEffect(() => {
     if (state?.success) {
@@ -69,7 +68,7 @@ export function FileUploader({ username }: { username: string }) {
       setOpen(false);
       setFile(null);
       formRef.current?.reset();
-      // Refresh the page to show the new file
+      setProgress(0);
       router.refresh();
     }
     if (state?.error) {
@@ -95,7 +94,7 @@ export function FileUploader({ username }: { username: string }) {
         </DialogHeader>
         <form
           ref={formRef}
-          action={formAction}
+          action={handleFormAction}
           className="grid gap-4 py-4"
         >
           <input type="hidden" name="username" value={username} />
@@ -110,9 +109,10 @@ export function FileUploader({ username }: { username: string }) {
               required
               className="col-span-3"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
+              disabled={isUploading}
             />
           </div>
-           {pending && (
+           {isUploading && (
               <div className="px-1">
                   <Progress value={progress} className="w-full" />
                   <p className="text-sm text-muted-foreground mt-2 text-center">Uploading {file?.name}...</p>
@@ -120,9 +120,11 @@ export function FileUploader({ username }: { username: string }) {
             )}
           <DialogFooter>
              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline" disabled={isUploading}>Cancel</Button>
             </DialogClose>
-            <SubmitButton />
+            <Button type="submit" disabled={!file || isUploading}>
+              {isUploading ? 'Uploading...' : 'Upload File'}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
