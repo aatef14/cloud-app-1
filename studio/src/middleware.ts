@@ -3,29 +3,31 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSession } from '@/lib/auth';
 
+const PROTECTED_ROUTES = ['/dashboard'];
+const AUTH_ROUTES = ['/login', '/signup'];
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  // Let static files and Next.js internals through
-  if (pathname.startsWith('/_next') || pathname.startsWith('/static') || pathname.endsWith('.ico') || pathname.endsWith('.png')) {
-    return NextResponse.next();
-  }
-  
   const session = await getSession();
 
-  // If user is logged in, redirect them from auth pages to the dashboard
-  if (session && (pathname.startsWith('/login') || pathname.startsWith('/signup'))) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  // If user is logged in:
+  if (session) {
+    // Redirect from auth pages to the dashboard
+    if (AUTH_ROUTES.some(route => pathname.startsWith(route))) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    // If on the root path, redirect to dashboard
+    if (pathname === '/') {
+       return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
   }
 
-  // If user is not logged in, protect the dashboard
-  if (!session && pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-  
-  // If user is logged in and on the root path, redirect to dashboard
-  if (session && pathname === '/') {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  // If user is not logged in:
+  if (!session) {
+     // Protect the dashboard and its sub-paths
+    if (PROTECTED_ROUTES.some(route => pathname.startsWith(route))) {
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
 
   return NextResponse.next();

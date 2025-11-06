@@ -1,31 +1,48 @@
-# Use the official Node.js 20 image.
-FROM node:20-alpine
-
-# Create and change to the app directory.
+# 1. Dependencies Stage: Install dependencies
+FROM node:18-alpine AS deps
 WORKDIR /app
-
-# Copy application dependency manifests to the container image.
-# A wildcard is used to ensure both package.json AND package-lock.json are copied.
-# Copying this first prevents re-running npm install on every code change.
-COPY package*.json ./
-
-# Install production dependencies.
+COPY package.json package-lock.json* ./
 RUN npm install --legacy-peer-deps
 
-# Copy local folders to the container image.
+# 2. Builder Stage: Build the application
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build the Next.js app.
+# Pass build arguments as environment variables
+ARG AWS_REGION
+ARG S3_BUCKET_NAME
+ENV AWS_REGION=${AWS_REGION}
+ENV S3_BUCKET_NAME=${S3_BUCKET_NAME}
+
 RUN npm run build
 
-# Set the correct user to run the app
+# 3. Production Stage: Create the final lightweight image
+FROM node:18-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+# Uncomment the following line in case of trouble running production builds.
+# ENV NEXT_TELEMETRY_DISABLED 1
+
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+
+# Copy the standalone Next.js server output
+COPY --from=builder /app/.next/standalone ./
+# Copy the public and static folders
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/static ./.next/static
+
 USER nextjs
 
-# Expose the port the app runs on
 EXPOSE 3000
 
-# Set the correct CMD for standalone output
-# The server is started from the standalone directory
-CMD ["node", ".next/standalone/server.js"]
+ENV PORT=3000
+# Pass runtime environment variables
+ENV AWS_REGION=${AWS_REGION}
+ENV S3_BUCKET_NAME=${S3_BUCKET_NAME}
+
+# server.js is the entrypoint from the standalone build
+CMD ["node", "server.js"]

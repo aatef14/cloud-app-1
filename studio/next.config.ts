@@ -9,12 +9,6 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  experimental: {
-    // This is required to include the JSON file in the standalone build
-    outputFileTracingIncludes: {
-        '/*': ['./src/lib/placeholder-images.json'],
-    },
-  },
   images: {
     remotePatterns: [
       {
