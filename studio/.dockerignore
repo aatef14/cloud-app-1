@@ -1,6 +1,21 @@
-Dockerfile
+# Docker & Git
 .dockerignore
-node_modules
-.next
+Dockerfile
 .git
+.gitignore
+
+# Dependencies
+node_modules
+
+# Next.js build output
+.next
+
+# Env files
+.env
+.env*.local
+
+# Misc
 README.md
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
