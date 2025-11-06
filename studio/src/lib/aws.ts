@@ -1,4 +1,4 @@
-import 'server-only';
+'use server';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
   DynamoDBDocumentClient,
@@ -15,23 +15,28 @@ import type { User, FileMetadata } from './definitions';
 // AWS Configuration
 const region = process.env.AWS_REGION;
 const bucketName = process.env.S3_BUCKET_NAME;
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+
 
 if (!region || !bucketName) {
   throw new Error('AWS region or S3 bucket name is missing from environment variables.');
 }
 
+const awsCredentials = accessKeyId && secretAccessKey 
+  ? { accessKeyId, secretAccessKey }
+  : undefined;
 
 // Table Names
 const USERS_TABLE = 'FileZenCloudUsers';
 const FILES_TABLE = 'FileZenCloudFiles';
 
 // Clients
-// When deployed to AWS (like an EC2 instance), the SDK will automatically
-// use the credentials from the attached IAM role. For local development,
-// it will use credentials from your environment variables or ~/.aws/credentials file.
-const ddbClient = new DynamoDBClient({ region });
+// If access keys are provided in the environment, they will be used.
+// Otherwise, the SDK will fall back to using an IAM role (if running on EC2).
+const ddbClient = new DynamoDBClient({ region, credentials: awsCredentials });
 const docClient = DynamoDBDocumentClient.from(ddbClient);
-const s3Client = new S3Client({ region });
+const s3Client = new S3Client({ region, credentials: awsCredentials });
 
 
 // User Functions
