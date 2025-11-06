@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { MoreHorizontal, File, Share2, Trash2, Download, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import {
@@ -44,6 +45,7 @@ function formatBytes(bytes: number, decimals = 2) {
 
 export function FilesTable({ files, username }: { files: FileMetadata[], username: string }) {
   const { toast } = useToast();
+  const router = useRouter();
   const [actionState, setActionState] = useState<{ type: 'deleting' | 'sharing' | 'downloading'; id: string | null }>({ type: null, id: null });
 
   const handleShare = async (fileName: string) => {
@@ -80,6 +82,7 @@ export function FilesTable({ files, username }: { files: FileMetadata[], usernam
     const result = await deleteFile(username, fileName);
     if (result.success) {
       toast({ title: 'File Deleted', description: `"${fileName}" has been permanently deleted.` });
+      router.refresh();
     } else {
       toast({ variant: 'destructive', title: 'Error', description: result.error });
     }

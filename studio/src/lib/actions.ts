@@ -164,8 +164,6 @@ export async function shareFile(username: string, fileName: string) {
         console.error('Share failed:', error);
         return { error: 'Could not generate share link.' };
     }
-
-    revalidatePath('/dashboard');
 }
 
 export async function downloadFile(username: string, fileName: string) {
