@@ -1,46 +1,42 @@
-# Dockerfile for Next.js Application
-
-# ---- Builder Stage ----
-# This stage builds the application.
-FROM node:20-alpine AS builder
-
-# Set working directory
+# Stage 1: Install dependencies
+FROM node:20-alpine AS deps
 WORKDIR /app
-
-# Copy package configuration files
-COPY package.json ./
-COPY package-lock.json ./
-COPY .npmrc ./
-
-# Install dependencies
+COPY package.json package-lock.json ./
 RUN npm install
 
-# Copy the rest of the application source code
+# Stage 2: Build the application
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Set environment to production for the build
-ENV NODE_ENV=production
-
-# Build the Next.js application
+# Since you are using an IAM role on EC2, you don't need to pass build-time AWS secrets.
+# We will rely on runtime environment variables.
 RUN npm run build
 
-# ---- Runner Stage ----
-# This stage runs the built application.
+# Stage 3: Production image
+# This creates a smaller, more secure final image
 FROM node:20-alpine AS runner
-
 WORKDIR /app
 
-# Set environment to production
 ENV NODE_ENV=production
+# Uncomment the line below if you want to disable telemetry
+# ENV NEXT_TELEMETRY_DISABLED 1
 
-# Copy the built application from the builder stage
+# Copy only the necessary files for running the app
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
-# Expose the port the app runs on (Next.js default is 3000)
+# Copy the standalone Next.js server output
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Set the correct user for running the app
+USER nextjs
+
 EXPOSE 3000
 
-# The command to start the application
-CMD ["npm", "start"]
+ENV PORT=3000
+
+# Run the app
+CMD ["node", "server.js"]
