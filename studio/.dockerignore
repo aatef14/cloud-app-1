@@ -1,7 +1,18 @@
+
+# Docker
 Dockerfile
 .dockerignore
+
+# Git
+.git
+.gitignore
+
+# Node
 node_modules
 npm-debug.log
-README.md
+
+# Next.js
 .next
-.git
+
+# Local Environment
+.env.local
