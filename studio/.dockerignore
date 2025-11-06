@@ -1,0 +1,18 @@
+# Dockerignore file
+
+# Ignore node_modules, it will be installed in the container
+node_modules
+
+# Ignore local development build artifacts
+.next
+
+# Ignore Docker files
+Dockerfile
+.dockerignore
+
+# Ignore git files
+.git
+.gitignore
+
+# Ignore local environment files
+.env.local
