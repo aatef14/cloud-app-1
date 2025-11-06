@@ -1,28 +1,7 @@
-# Docker-specific
 Dockerfile
 .dockerignore
-
-# Git
-.git
-.gitignore
-
-# Node
 node_modules
 npm-debug.log
-.npm
-
-# Build artifacts
-.next/
-dist/
-build/
-out/
-
-# Env files
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Misc
-.DS_Store
-*.pem
+README.md
+.next
+.git
