@@ -13,29 +13,26 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import type { User, FileMetadata } from './definitions';
 
 // AWS Configuration
-const region = process.env.AWS_REGION!;
-const accessKeyId = process.env.AWS_ACCESS_KEY_ID!;
-const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY!;
-const bucketName = process.env.S3_BUCKET_NAME!;
+const region = process.env.AWS_REGION;
+const bucketName = process.env.S3_BUCKET_NAME;
 
-if (!region || !accessKeyId || !secretAccessKey || !bucketName) {
-  throw new Error('AWS configuration is missing in environment variables.');
+if (!region || !bucketName) {
+  throw new Error('AWS region or S3 bucket name is missing from environment variables.');
 }
+
 
 // Table Names
 const USERS_TABLE = 'FileZenCloudUsers';
 const FILES_TABLE = 'FileZenCloudFiles';
 
 // Clients
-const ddbClient = new DynamoDBClient({
-  region,
-  credentials: { accessKeyId, secretAccessKey },
-});
+// When deployed to AWS (like an EC2 instance), the SDK will automatically
+// use the credentials from the attached IAM role. For local development,
+// it will use credentials from your environment variables or ~/.aws/credentials file.
+const ddbClient = new DynamoDBClient({ region });
 const docClient = DynamoDBDocumentClient.from(ddbClient);
-const s3Client = new S3Client({
-  region,
-  credentials: { accessKeyId, secretAccessKey },
-});
+const s3Client = new S3Client({ region });
+
 
 // User Functions
 export async function createUser(user: User): Promise<void> {

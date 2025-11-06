@@ -32,7 +32,7 @@ Before running the application, you need to set up the following AWS resources:
     *   **`FileZenCloudFiles`**:
         *   Partition Key: `username` (String)
         *   Sort Key: `fileName` (String)
-3.  **IAM User**: Create an IAM user with programmatic access and attach policies that grant permissions for S3 (`GetObject`, `PutObject`, `DeleteObject`) and DynamoDB (`GetItem`, `PutItem`, `DeleteItem`, `Query`, `Scan`) for the resources you created.
+3.  **IAM Role (for EC2 Deployment)**: Create an IAM role for your EC2 instance with policies that grant permissions for S3 (`GetObject`, `PutObject`, `DeleteObject`) and DynamoDB (`GetItem`, `PutItem`, `DeleteItem`, `Query`, `Scan`) for the resources you created. This is the most secure method.
 
 ## 🚀 Getting Started
 
@@ -51,14 +51,19 @@ npm install
 
 ### 3. Set up environment variables
 
-Create a `.env.local` file in the root of the project and add the following environment variables. Replace the placeholder values with your actual AWS credentials and resource names.
+Create a `.env.local` file in the root of the project and add the following environment variables.
+
+For production deployment on EC2, you should use an IAM Role and only need to set the `AWS_REGION` and `S3_BUCKET_NAME`. For local development, you will also need to provide your AWS credentials.
 
 ```env
-# AWS Credentials
-AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_ACCESS_KEY
+# AWS Configuration
 AWS_REGION=YOUR_AWS_REGION
 S3_BUCKET_NAME=your-s3-bucket-name
+
+# For local development ONLY. Do not use these in production.
+# AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY_ID
+# AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_ACCESS_KEY
+
 
 # JWT Secret
 JWT_SECRET_KEY=generate-a-strong-secret-key # Should be at least 32 characters long
