@@ -139,6 +139,7 @@ export async function uploadFile(prevState: any, formData: FormData) {
     return { error: 'File upload failed. Please try again.' };
   }
   
+  revalidatePath('/dashboard');
   return { success: 'File uploaded successfully.' };
 }
 
@@ -163,6 +164,8 @@ export async function shareFile(username: string, fileName: string) {
         console.error('Share failed:', error);
         return { error: 'Could not generate share link.' };
     }
+
+    revalidatePath('/dashboard');
 }
 
 export async function downloadFile(username: string, fileName: string) {
