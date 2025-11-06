@@ -1,18 +1,23 @@
-# Dockerignore file
-
-# Ignore node_modules, it will be installed in the container
-node_modules
-
-# Ignore local development build artifacts
-.next
-
-# Ignore Docker files
-Dockerfile
-.dockerignore
-
-# Ignore git files
+# Git
 .git
 .gitignore
 
-# Ignore local environment files
+# Docker
+.dockerignore
+Dockerfile
+
+# Dependencies
+node_modules
+
+# Build artifacts
+.next
+dist
+build
+
+# Local environment
 .env.local
+.env.*.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
