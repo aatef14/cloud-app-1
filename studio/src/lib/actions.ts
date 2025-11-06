@@ -44,7 +44,7 @@ export async function signup(prevState: any, formData: FormData) {
     await createUser({ username, passwordHash });
     await createSession(username);
   } catch (error) {
-    console.error(error);
+    console.error("Signup Action Failed:", error);
     return { message: 'Registration failed. Please try again.' };
   }
 
@@ -78,7 +78,7 @@ export async function login(prevState: any, formData: FormData) {
 
     await createSession(username);
   } catch (error) {
-    console.error(error);
+    console.error("Login Action Failed:", error);
     return { message: 'Login failed. Please try again.' };
   }
 
