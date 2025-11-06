@@ -138,8 +138,8 @@ export async function uploadFile(prevState: any, formData: FormData) {
     console.error('Upload failed:', error);
     return { error: 'File upload failed. Please try again.' };
   }
-
-  revalidatePath('/dashboard');
+  
+  // Revalidation will be handled by the client to prevent hydration errors.
   return { success: 'File uploaded successfully.' };
 }
 

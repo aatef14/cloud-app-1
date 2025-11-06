@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react';
 import { useFormState, useFormStatus } from 'react-dom';
+import { useRouter } from 'next/navigation';
 import { UploadCloud } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -35,6 +36,7 @@ export function FileUploader({ username }: { username: string }) {
   const [file, setFile] = useState<File | null>(null);
   const [state, formAction] = useFormState(uploadFile, null);
   const { toast } = useToast();
+  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   
   // This is a mock progress, in a real app you'd use a library that supports progress tracking.
@@ -67,12 +69,14 @@ export function FileUploader({ username }: { username: string }) {
       setOpen(false);
       setFile(null);
       formRef.current?.reset();
+      // Refresh the page to show the new file
+      router.refresh();
     }
     if (state?.error) {
       toast({ variant: 'destructive', title: 'Error', description: state.error });
       setProgress(0);
     }
-  }, [state, toast]);
+  }, [state, toast, router]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
