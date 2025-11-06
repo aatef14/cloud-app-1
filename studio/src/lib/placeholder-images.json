@@ -1,0 +1,34 @@
+{
+  "placeholderImages": [
+    {
+      "id": "landing-hero",
+      "description": "Abstract representation of cloud file storage and security",
+      "imageUrl": "https://images.unsplash.com/photo-1723740459372-74442099bfb4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxhYnN0cmFjdCUyMGNsb3VkfGVufDB8fHx8MTc2MjM3MjEwOXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract cloud"
+    },
+    {
+      "id": "landing-dashboard",
+      "description": "Clean and modern dashboard UI for a file management application",
+      "imageUrl": "https://images.unsplash.com/photo-1622816188655-9e99d5197616?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxkYXNoYm9hcmQlMjB1aXxlbnwwfHx8fDE3NjIzNzA5ODR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dashboard ui"
+    },
+    {
+      "id": "feature-upload",
+      "description": "Icon representing file upload",
+      "imageUrl": "https://images.unsplash.com/photo-1614680376739-414d95ff43df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx1cGxvYWQlMjBpY29ufGVufDB8fHx8MTc2MjQxNzkzNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "upload icon"
+    },
+    {
+      "id": "feature-share",
+      "description": "Icon representing file sharing",
+      "imageUrl": "https://images.unsplash.com/photo-1642310290559-53902b3b0f2e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxzaGFyZSUyMGljb258ZW58MHx8fHwxNzYyNDE3OTM1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "share icon"
+    },
+    {
+      "id": "feature-security",
+      "description": "Icon representing security",
+      "imageUrl": "https://images.unsplash.com/photo-1760774123109-f4b9e6083970?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxzZWN1cml0eSUyMGljb258ZW58MHx8fHwxNzYyNDE3OTM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "security icon"
+    }
+  ]
+}
